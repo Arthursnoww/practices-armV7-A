@@ -1,0 +1,65 @@
+ENTRY(_vector_table)
+
+/* memmap */
+
+STACK_SIZE = 0x800;
+
+/* Memory Definitions */
+/* BeagleBone Black */
+
+MEMORY
+{
+    RAM (rw) : ORIGIN = 0x80000000, LENGTH = 0x0001b400 
+}
+
+SECTIONS
+{
+    .text :
+  {
+    _text_start = .;
+    *startup.o (.text)          /* Startup code */
+    *(.text)                    /* remaining code */
+    *(.rodata)                  /* read-only data (constants) */
+    *(.rodata*)
+  } > RAM
+
+  _text_end = . ;
+   
+    . = ALIGN(4);
+    
+    
+  /* Initialized data */
+  .data : AT (_text_end)
+  {
+    _data_start = .;
+    *(.data)
+  } > RAM
+
+  _data_end = . ; 
+
+  . = ALIGN(4);
+
+  
+  /* Uninitialized data */
+  .bss (NOLOAD) :
+  {
+    _bss_start = . ;
+    *(.bss)
+  } > RAM
+  _bss_end = . ;
+  _bss_size = _bss_end - _bss_start;
+
+  . = ALIGN(4);
+
+  
+  /* .stack */
+  .stack :
+  {
+    . = ALIGN(256);
+    . += STACK_SIZE;
+  } > RAM
+  _stack_end = .;
+  _end = . ;
+}
+
+
